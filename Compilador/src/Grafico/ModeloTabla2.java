@@ -7,16 +7,16 @@ import main.Identificador;
 public class ModeloTabla2 extends AbstractTableModel{
 
 	private static final long serialVersionUID = 1L;
-	private String[] titulo ={"Identificador","Tipo","Valor"};
+	private String[] titulo ={"Identificador","Tipo","Valor","Fila"};
 	private ArrayList<Identificador> ide;
 
 	public ModeloTabla2(ArrayList<Identificador> id){
-		ide = id;
+		ide = id; 
 	}
 	
 	@Override
 	public int getColumnCount() {
-		return 3;
+		return titulo.length;
 	}
 
 	@Override
@@ -34,8 +34,8 @@ public class ModeloTabla2 extends AbstractTableModel{
 		switch (c) {
 		case 0: val = id.getNombre(); break;
 		case 1: val = id.getTipo();  break;
-		case 2: val = id.getValor();
-			break;
+		case 2: val = id.getValor(); break;
+		case 3: val = id.getFila(); break;
 		}
 		return val;
 	}
