@@ -23,38 +23,20 @@ public class Parser2 {
 		CD();
 		return salida;
 	}
-	/*private void Acomodar(int tipo ,String to,String s){
-		//salida2 += "Token obtenido:"+cp.getToken()+"\n"+"Token Esperado: "+s+"\n-------------------------------------------\n";
-		if(cp.getTipo() == tipo && cp.getToken().matches(to)){
-			if(idx < compo.size() - 1) idx++;
-			try {
-				cp = compo.get(idx);
-			} catch (IndexOutOfBoundsException e) {
-				idx--;
-				Componente caux = compo.get(idx);
-				cp = new Componente(19, "", caux.getColumna(), caux.getFila());
-				error(tipo,s);
-			}
-		}else{
-			error(tipo,s);
-			/*if(idx < compo.size() - 1) idx++;
-			try {
-				cp = compo.get(idx);
-			} catch (IndexOutOfBoundsException e) {
-				idx--;
-				Componente caux = compo.get(idx);
-				cp = new Componente(19, "", caux.getColumna(), caux.getFila());
-				error(tipo,s);
-			}
-		}
-	}*/
+
 	private void Acomodar(int tipo ,String s){
 		if(cp.getTipo() == tipo && cp.getToken().equals(s)){
 			Avanza();
 		}else{
 			error(tipo,s);
+
 		}
 	}
+	
+	
+	
+	
+	
 	private void Avanza(){
 		salida2 += "Token obtenido:"+cp.getToken()+"\n"+"Token Esperado: "+cp.getToken()+"\n-------------------------------------------\n";
 		if(idx < compo.size() - 1) idx++;
@@ -214,6 +196,8 @@ public class Parser2 {
 			WS();
 		}else if(c.getTipo() == Token.MOD || c.getTipo() == Token.TIPO){
 			VDN();
+			Acomodar(Token.SE, ";");
+			S();
 		}
 	}
 	private void WS(){

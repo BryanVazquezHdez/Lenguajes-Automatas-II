@@ -60,7 +60,7 @@ public class Analizador {
 			 }else if( car == '\t' || car == '\r' || car == ' '){
 				 noError = true;    //media para que el caracter no sea tomado como uno no valido
 			 }
-			 //cliclo que verifica que el token cuadre con los tokens dados por la gramatica
+			 //ciclo que verifica que el token cuadre con los tokens dados por la gramatica
 			 for (int j = 0; j < COMLEX.length; j++) {
 				if(token.matches(COMLEX[j])){
 					arr.add(new Token(j, token,columna,linea));
@@ -82,93 +82,7 @@ public class Analizador {
 		if(!salida.equals("")) return false;
 		return true;
 	}
-	/*Token Sintactico(Nodo<Token> nodo){
-		Token cant,cl;
-		boolean hayIf = false;
-		
-		if(nodo != null){
-			cl = nodo.valor;
-			cant = Sintactico(nodo.sig);
-			switch (cl.getTipo()) {
-			case Token.MOD:
-				int ante = cant.getTipo();
-				if( ante != Token.TIPO && !cant.getToken().equals("class"))
-					//System.out.println("se esperaba un modificador");
-					salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", se esperaba un tipo de dato o la palabra class\n";	
-				else if (ante == Token.ID)
-					salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", se esperaba la palabra class\n";
-				break;
-			case Token.ID:
-				String s = cant.getToken();
-				//if( hayIf)
-					if(!s.matches("[{|=|\\;]"))
-						salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", identificador no valido\n";
-					else if(nodo.ant.valor.getToken().equals("class"))
-						//
-					
-				break;
-			case Token.SE:
-				String simbolo = cl.getToken();
-				boolean error = false;
-				switch (simbolo) {
-				case "(":
-					error = contador(simbolo) != contador(")");
-					if(error)
-						salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", falta un \")\"\n";
-					break;
-				case "{":
-					error = contador(simbolo) != contador("}");
-					if(error)
-						salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", falta un \"}\"\n";
-					break;
-				case ")":
-					error = contador(simbolo) != contador("(");
-					if(error)
-						salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", falta un \"(\"\n";				
-					break;
-				case "}":
-					error = contador(simbolo) != contador("{");
-					if(error)
-						salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", falta un \"{\"\n";				
-					break;
-				}
-				break;
-			case Token.TIPO:
-				if(nodo.ant != null && nodo.ant.valor.getTipo() == Token.MOD)
-					if( cant.getTipo() != Token.ID)
-						salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", se esperaba un identificador\n";
-				break;
-			case Token.PR:
-				String p = cl.getToken();
-				switch (p) {
-				case "if":
-					if(!cant.getToken().equals("("))
-						salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", se esperaba un \"(\"";
-					hayIf = true;
-					break;
-				case "while":
-					if(!cant.getToken().equals("("))
-						salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", se esperaba un \"(\"";
-					break;
-				}
-				break;
-			case Token.OP:
-				if( nodo.ant.valor.getTipo() != Token.DIG && nodo.ant.valor.getTipo() != Token.ID)
-					salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", se esperaba una constante\n";
-				if( cant.getTipo() != Token.DIG && nodo.ant.valor.getTipo() != Token.ID)
-					salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", se esperaba una constante\n";
-				break;
-			case Token.DIG: case Token.VAL:
-				if(nodo.ant.valor.getToken().equals("="))
-					if(cant.getTipo() != Token.OP && cant.getTipo() != Token.DIG && !cant.getToken().equals(";"))
-						salida += "\tError Sintactico en linea: "+cl.getFila()+" columna "+cl.getColumna()+", asignacion no valida\n";
-				break;
-			
-			}
-			return cl;
-		}
-		return new Token(9, "", 0, 0);
-	}*/
+	
 	private static boolean isOperator(char o){
 		switch(o){
 			case '+' : return true;
