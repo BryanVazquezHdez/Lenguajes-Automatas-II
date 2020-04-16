@@ -15,6 +15,10 @@ public class Semantic {
 		algo();
 		return salida;
 	}
+	
+	
+	
+	
 	public void algo()
 	{
 		String exp = "";
@@ -92,6 +96,9 @@ public class Semantic {
 	}
 	
 	
+	
+	
+	
 private boolean revisaDeclarada(String nom){
 		
 		for (Identificador ident : ide) {
@@ -103,7 +110,7 @@ private boolean revisaDeclarada(String nom){
 		return false;
 	}
 	
-	public boolean checarExpresion(Identificador ide){
+public boolean checarExpresion(Identificador ide){
 		boolean valido = true;
 		ArrayList<Token> expre = ide.getExp();
 		String valo;
@@ -136,7 +143,7 @@ private boolean revisaDeclarada(String nom){
 		return valido;
 	}
 	
-	private boolean ChecarRepetido(Identificador id){
+private boolean ChecarRepetido(Identificador id){
 		int rep = 0;
 		boolean cosa = false, cosa2 = false;
 		
@@ -158,7 +165,7 @@ private boolean revisaDeclarada(String nom){
 	}
 
 
-	private Identificador buscaIdentificador(String nom){
+private Identificador buscaIdentificador(String nom){
 		for (Identificador identificador : ide) {
 			if (identificador.getNombre().equals(nom))
 				return identificador;
