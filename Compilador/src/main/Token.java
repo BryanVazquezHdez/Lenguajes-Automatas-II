@@ -9,6 +9,8 @@ public class Token {
 	final static int DIG = 5;
 	final static int VAL = 6;
 	final static int ID = 7;
+	final static int AOP = 8;	
+	public final static int ID_DIG = 11;
 	
 	private String desc,token;
 	private int tipo,columna,fila;

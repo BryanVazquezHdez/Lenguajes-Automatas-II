@@ -13,6 +13,7 @@ public class Semantic {
 	}
 	public String Semantico(){
 		algo();
+		revisaRedeclaracionVariable();
 		return salida;
 	}
 	
@@ -172,4 +173,8 @@ private Identificador buscaIdentificador(String nom){
 		}
 		return new Identificador("false", "dif", nom,-50,-10);
 	}
+
+private void revisaRedeclaracionVariable() {
+	
+}
 }

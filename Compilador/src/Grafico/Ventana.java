@@ -73,7 +73,7 @@ public class Ventana extends JFrame{
 	
 	public Ventana() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Ventana.class.getResource("/Imagenes/icono-96.png")));
-		setTitle("vaja");
+		setTitle("Compilador 1.0");
 		setSize(1200, 720);
 		init();						//Metodo que inicializa todos los componentes
 		try
@@ -264,7 +264,7 @@ public class Ventana extends JFrame{
 		mnAyuda.setIcon(null);
 		menuBar.add(mnAyuda);
 		
-		mnitAcerca = new JMenuItem("Acerca Vaja...");
+		mnitAcerca = new JMenuItem("Acerca de Compilador 1.0...");
 		mnitAcerca.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/info-16.png")));
 		mnitAcerca.addActionListener(O);
 		mnAyuda.add(mnitAcerca);
