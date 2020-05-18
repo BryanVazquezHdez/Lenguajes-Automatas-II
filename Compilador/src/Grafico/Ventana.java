@@ -10,11 +10,21 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import Formato.Documento2;
 import Formato.Formato;
+import Consola.ConsoleDocument;
+
+import Grafico.FrameAcerca;
+
+
+
+
 import main.Analizador;
 import main.Archivo;
+
 import main.Token;
 import main.Identificador;
 import main.Parser2;
@@ -51,30 +61,33 @@ public class Ventana extends JFrame{
 	private static final long serialVersionUID = 1L;
 	//Componentes Nativos
 	private JTable table;
-	private JTextPane txtTrabajo,txtConsola,txtLog;
+	private JTextPane txtTrabajo,txtConsole,txtLog,txtCuadruple;
 	JLabel lbColumna,lbLinea;
-	private JMenuItem mnitNuevo,mnitGuardar,mnitAbrir,mnitSalir,mnitEjecutar,mnitAcerca;
-	private JMenuItem mnitCopiar,mnitPegar,mnitCortar;
-	private JMenuItem mnitCerrar;
-	private JMenuItem mnitpCopiar,mnitpPegar,mnitpCortar,mnitTabTok,mnitTabSimb;
-	private JButton btnNuevo,btnGuardar,btnEjecutar;
+	private JMenuItem mnitNew,mnitSave,mnitOpen,mnitExit,mnitRun,mnitAbout;
+	private JMenuItem mnitCopy,mnitPaste,mnitCut;
+	private JMenuItem mnitClose;
+	private JMenuItem mnitTokTab,mnitSymbTab;
+	private JMenuItem mnitpCopy,mnitpPaste,mnitpCut;
+	private JButton btnNew,btnSave,btnRun;
 	private JTabbedPane workSpace;
 	private JScrollPane jstb;
+	private JTabbedPane tpConsole;
 	//Componentes Personalizados
 	private FrameAcerca FAD;
 	private TablaSimbolosEx TSE;
 	private TablaSimbolosEx2 TS;
-	private Archivo ach;
+	private Archivo archivo;
 	private Analizador bot = new Analizador();
-	private ModeloTabla mt;
-	private ModeloTabla2 mt2;
+	private ModeloTabla ttm;
+	//private ModeloTabla2 mt2;
 	//Oyentes
-	private Oyente O = new Oyente();
+	private ActListener O = new ActListener();
 	
 	public Ventana() {
-		setIconImage(Toolkit.getDefaultToolkit().getImage(Ventana.class.getResource("/Imagenes/icono-96.png")));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Ventana.class.getResource("/imagenes/icono-96.png")));
 		setTitle("Compilador 1.0");
 		setSize(1200, 720);
+		//setSize(700, 720);
 		init();						//Metodo que inicializa todos los componentes
 		try
 		{
@@ -103,37 +116,42 @@ public class Ventana extends JFrame{
 		panel2.setResizeWeight(0.9);
 		panel.setTopComponent(panel2);
 		
-		//panel2.setResizeWeight(0.99);
-		//panel.setResizeWeight(0.1);
 		panel3.setResizeWeight(0.7);
 		
 		
-		//Seccion del area de trabajo
+		//WorkSpace Section
 		WorkSpace WS = new WorkSpace(this);
 		txtTrabajo = WS.getTxtTrabajo();
 		workSpace.addTab("Nuevo", WS);
 		panel2.setLeftComponent(workSpace);
-		//Seccion de la consola
-		Documento2 doc = new Documento2();
-		txtConsola = new JTextPane(doc);
-		txtConsola.setFont(new Font("Consolas", Font.PLAIN, 13));
-		txtConsola.setEditable(false);
-		JScrollPane jscc = new JScrollPane(txtConsola);
-		JTabbedPane tpConsola = new JTabbedPane(JTabbedPane.TOP);
-		tpConsola.addTab("Consola",new ImageIcon(Ventana.class.getResource("/Imagenes/consola-16.png")),jscc);
-		panel3.setLeftComponent(tpConsola);
+		//Console Section
+		ConsoleDocument doc = new ConsoleDocument();
+		txtConsole = new JTextPane(doc);
+		txtConsole.setFont(new Font("Consolas", Font.PLAIN, 13));
+		txtConsole.setEditable(false);
+		JScrollPane jscc = new JScrollPane(txtConsole);
+		txtCuadruple = new JTextPane();
+		txtCuadruple.setFont(new Font("Consolas", Font.PLAIN, 16));
+		txtCuadruple.setText("\n\tNada por mostrar");
+		txtCuadruple.setEditable(false);
+		JScrollPane jsct = new JScrollPane(txtCuadruple);
+		tpConsole = new JTabbedPane(JTabbedPane.TOP);
+		tpConsole.addTab("Consola",new ImageIcon(Ventana.class.getResource("/imagenes/consola-16.png")),jscc);
+		tpConsole.addTab("Cuadruple", jsct);
+		tpConsole.addChangeListener(new OyeTab());
+		panel3.setLeftComponent(tpConsole);
 		panel.setBottomComponent(panel3);
 		
 		txtLog = new JTextPane();
 		txtLog.setFont(new Font("Consolas", Font.PLAIN, 12));
 		panel3.setRightComponent(new JScrollPane(txtLog));
 		
-		//Seccion de la tabla de simbolos pequeña
-		creaTabla(null);
+		//Small Token Table Section
+		createTable(null);
 		jstb = new JScrollPane(table);
 		jstb.setPreferredSize(new Dimension(200, 402));
 		panel2.setRightComponent(jstb);
-		//Seccion del contador de lineas y columnas
+		//Column and Line counter Section
 		JPanel panel_1 = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel_1.getLayout();
 		flowLayout.setAlignment(FlowLayout.RIGHT);
@@ -150,200 +168,188 @@ public class Ventana extends JFrame{
 		margin = new EmptyBorder(0,0,0,200);
 		lbColumna.setBorder(new CompoundBorder(border, margin));
 		panel_1.add(lbColumna);	
-		//Seccion de la barra de herramientas
+		//ToolBar Section
 		JToolBar toolBar = new JToolBar();
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 		
-		btnNuevo = new JButton("");
-		btnNuevo.setToolTipText("Nueva Ventana");
-		btnNuevo.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/nuevo-16.png")));
-		btnNuevo.addActionListener(O);
-		toolBar.add(btnNuevo);
+		btnNew = new JButton("");
+		btnNew.setToolTipText("Nueva Ventana");
+		btnNew.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/nuevo-16.png")));
+		btnNew.addActionListener(O);
+		toolBar.add(btnNew);
 		toolBar.addSeparator(new Dimension(5,0));
 		
-		btnGuardar = new JButton("");
-		btnGuardar.setToolTipText("Guardar");
-		btnGuardar.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/guardar-16.png")));
-		btnGuardar.addActionListener(O);
-		toolBar.add(btnGuardar);
+		btnSave = new JButton("");
+		btnSave.setToolTipText("Guardar");
+		btnSave.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/guardar-16.png")));
+		btnSave.addActionListener(O);
+		toolBar.add(btnSave);
 		toolBar.addSeparator(new Dimension(5,0));
 		
 		JToolBar toolBar_1 = new JToolBar();
 		toolBar.add(toolBar_1);
 		
-		btnEjecutar = new JButton("");
-		btnEjecutar.setToolTipText("Ejecutar");
-		btnEjecutar.setSize(20, 20);
-		ImageIcon im = new ImageIcon(Ventana.class.getResource("/Imagenes/hoja.jpeg"));
-		Image r = im.getImage().getScaledInstance(btnEjecutar.getWidth(), btnEjecutar.getHeight(), Image.SCALE_SMOOTH);
+		btnRun = new JButton("");
+		btnRun.setToolTipText("Correr");
+		btnRun.setSize(20, 20);
+		ImageIcon im = new ImageIcon(Ventana.class.getResource("/imagenes/hoja.jpeg"));
+		Image r = im.getImage().getScaledInstance(btnRun.getWidth(), btnRun.getHeight(), Image.SCALE_SMOOTH);
 		Icon i = new ImageIcon(r);
-		btnEjecutar.setIcon(i);
-		btnEjecutar.addActionListener(O);
-		toolBar_1.add(btnEjecutar);
-		//Seccion del menu de opciones
-		creaMenu();				//metodo que crea y añade todos los elementos del menu
+		btnRun.setIcon(i);
+		btnRun.addActionListener(O);
+		toolBar_1.add(btnRun);
+		//MenSection
+		createMenu();				//metodo que crea y añade todos los elementos del menu
 	}
-	private void creaMenu(){
+	private void createMenu(){
 		JMenuBar menuBar = new JMenuBar();
-		JPopupMenu mnppEdicion = new JPopupMenu();
-		JPopupMenu mnppCerrar = new JPopupMenu();
+		JPopupMenu mnppEdition = new JPopupMenu();
+		JPopupMenu mnppClose = new JPopupMenu();
 		setJMenuBar(menuBar);
 		
 		JMenu mnArchivo = new JMenu("Archivo");
 		menuBar.add(mnArchivo);
 		
-		mnitNuevo = new JMenuItem("Nuevo");
-		mnitNuevo.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/nuevo-16.png")));
-		mnitNuevo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
-		mnitNuevo.addActionListener(O);
-		mnArchivo.add(mnitNuevo);
+		mnitNew = new JMenuItem("Nuevo");
+		mnitNew.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/nuevo-16.png")));
+		mnitNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
+		mnitNew.addActionListener(O);
+		mnArchivo.add(mnitNew);
 		mnArchivo.addSeparator();
 		
-		mnitGuardar = new JMenuItem("Guardar");
-		mnitGuardar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK));
-		mnitGuardar.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/guardar-16.png")));
-		mnitGuardar.addActionListener(O);
-		mnArchivo.add(mnitGuardar);
+		mnitSave = new JMenuItem("Guardar");
+		mnitSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK));
+		mnitSave.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/guardar-16.png")));
+		mnitSave.addActionListener(O);
+		mnArchivo.add(mnitSave);
 		
-		mnitAbrir = new JMenuItem("Abrir");
-		mnitAbrir.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
-		mnitAbrir.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/abrir-16.png")));
-		mnitAbrir.addActionListener(O);
-		mnArchivo.add(mnitAbrir);
+		mnitOpen = new JMenuItem("Abrir");
+		mnitOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		mnitOpen.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/abrir-16.png")));
+		mnitOpen.addActionListener(O);
+		mnArchivo.add(mnitOpen);
 		mnArchivo.addSeparator();
 		
-		mnitSalir = new JMenuItem("Salir");
-		mnitSalir.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/salir-16.png")));
-		mnitSalir.addActionListener(O);
-		mnArchivo.add(mnitSalir);
+		mnitExit = new JMenuItem("Salir");
+		mnitExit.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/salir-16.png")));
+		mnitExit.addActionListener(O);
+		mnArchivo.add(mnitExit);
 		
 		JMenu mnEditar = new JMenu("Editar");
 		menuBar.add(mnEditar);
 		
-		mnitCopiar = new JMenuItem("Copiar");
-		mnitCopiar.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/copiar-16.png")));
-		mnitCopiar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
-		mnitCopiar.addActionListener(O);
-		mnEditar.add(mnitCopiar);
+		mnitCopy = new JMenuItem("Copiar");
+		mnitCopy.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/copiar-16.png")));
+		mnitCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
+		mnitCopy.addActionListener(O);
+		mnEditar.add(mnitCopy);
 		
-		mnitPegar = new JMenuItem("Pegar");
-		mnitPegar.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/pegar-16.png")));
-		mnitPegar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK));
-		mnitPegar.addActionListener(O);
-		mnEditar.add(mnitPegar);
+		mnitPaste = new JMenuItem("Pegar");
+		mnitPaste.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/pegar-16.png")));
+		mnitPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK));
+		mnitPaste.addActionListener(O);
+		mnEditar.add(mnitPaste);
 		
-		mnitCortar = new JMenuItem("Cortar");
-		mnitCortar.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/cortar-16.png")));
-		mnitCortar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
-		mnitCortar.addActionListener(O);
-		mnEditar.add(mnitCortar);
+		mnitCut = new JMenuItem("Cortar");
+		mnitCut.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/cortar-16.png")));
+		mnitCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
+		mnitCut.addActionListener(O);
+		mnEditar.add(mnitCut);
 		
 		JMenu mnCorrer = new JMenu("Correr");
 		menuBar.add(mnCorrer);
 		
-		mnitEjecutar = new JMenuItem("Ejecutar");
-		mnitEjecutar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
-		mnitEjecutar.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/ejecutar-16.png")));
-		mnitEjecutar.addActionListener(O);
-		mnCorrer.add(mnitEjecutar);
+		mnitRun = new JMenuItem("Ejecutar");
+		mnitRun.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+		mnitRun.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/ejecutar-16.png")));
+		mnitRun.addActionListener(O);
+		mnCorrer.add(mnitRun);
 		
-		JMenu mnVer = new JMenu("Ver");
+		JMenu mnVer = new JMenu("Mostrar");
 		menuBar.add(mnVer);
 		
-		mnitTabTok = new JMenuItem("Tabla de Tokens Extendida");
-		mnitTabTok.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/table-16.png")));
-		mnitTabTok.addActionListener(O);
-		mnVer.add(mnitTabTok);
+		mnitTokTab = new JMenuItem("Tabla de simbolos extendida");
+		mnitTokTab.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/table-16.png")));
+		mnitTokTab.addActionListener(O);
+		mnVer.add(mnitTokTab);
 		
-		mnitTabSimb = new JMenuItem("Tabla de Simbolos");
-		mnitTabSimb.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/table-16.png")));
-		mnitTabSimb.addActionListener(O);
-		mnVer.add(mnitTabSimb);
+		mnitSymbTab = new JMenuItem("Tabla de simbolos");
+		mnitSymbTab.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/table-16.png")));
+		mnitSymbTab.addActionListener(O);
+		mnVer.add(mnitSymbTab);
+		
 		
 		JMenu mnAyuda = new JMenu("Ayuda");
 		mnAyuda.setIcon(null);
 		menuBar.add(mnAyuda);
 		
-		mnitAcerca = new JMenuItem("Acerca de Compilador 1.0...");
-		mnitAcerca.setIcon(new ImageIcon(Ventana.class.getResource("/Imagenes/info-16.png")));
-		mnitAcerca.addActionListener(O);
-		mnAyuda.add(mnitAcerca);
+		mnitAbout = new JMenuItem("Sobre Compilador 1.0...");
+		mnitAbout.setIcon(new ImageIcon(Ventana.class.getResource("/imagenes/info-16.png")));
+		mnitAbout.addActionListener(O);
+		mnAyuda.add(mnitAbout);
 		
-		mnitpCopiar = new JMenuItem("Copiar");
-		mnitpCopiar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
-		mnitpCopiar.addActionListener(O);
-		mnppEdicion.add(mnitpCopiar);
+		mnitpCopy = new JMenuItem("Copiar");
+		mnitpCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
+		mnitpCopy.addActionListener(O);
+		mnppEdition.add(mnitpCopy);
 		
-		mnitpPegar = new JMenuItem("Pegar");
-		mnitpPegar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK));
-		mnitpPegar.addActionListener(O);
-		mnppEdicion.add(mnitpPegar);
+		mnitpPaste = new JMenuItem("Pegar");
+		mnitpPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK));
+		mnitpPaste.addActionListener(O);
+		mnppEdition.add(mnitpPaste);
 		
-		mnitpCortar = new JMenuItem("Cortar");
-		mnitpCortar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
-		mnitpCortar.addActionListener(O);
-		mnppEdicion.add(mnitpCortar);
-		txtTrabajo.setComponentPopupMenu(mnppEdicion);
+		mnitpCut = new JMenuItem("Cortar");
+		mnitpCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
+		mnitpCut.addActionListener(O);
+		mnppEdition.add(mnitpCut);
+		txtTrabajo.setComponentPopupMenu(mnppEdition);
 		
-		mnitCerrar = new JMenuItem("Cerrar");
-		mnitCerrar.addActionListener(O);
-		mnppCerrar.add(mnitCerrar);
-		workSpace.setComponentPopupMenu(mnppCerrar);
+		mnitClose = new JMenuItem("Cerrar");
+		mnitClose.addActionListener(O);
+		mnppClose.add(mnitClose);
+		workSpace.setComponentPopupMenu(mnppClose);
 		
 	}
 	
-	private void creaTabla(ArrayList<Token> a){
-		mt= new ModeloTabla(a,true);								//Creaacion del modelo de tabla
+	private void createTable(ArrayList<Token> a){
+		ttm= new ModeloTabla(a,true);								//Creaacion del modelo de tabla
 		table = new JTable();										//Instancia de la tabla
-		table.setModel(mt);
-		table.getTableHeader().setResizingAllowed(false);			//Quita la opcion de redimencionar la cabezera de la tabla
-		table.getTableHeader().setReorderingAllowed(false);			//quira la opcion de reordenar la cabezera de la tabla
-		table.setDefaultRenderer(Object.class, new Formato());		//Indica el formato de las celdas
-		table.setRowHeight(22);										//Tamaño del renglon
-	}
-	private void creaTabla2(ArrayList<Identificador> a){
-		mt2 = new ModeloTabla2(a);								//Creaacion del modelo de tabla
-		table = new JTable();										//Instancia de la tabla
-		table.setModel(mt);
+		table.setModel(ttm);
 		table.getTableHeader().setResizingAllowed(false);			//Quita la opcion de redimencionar la cabezera de la tabla
 		table.getTableHeader().setReorderingAllowed(false);			//quira la opcion de reordenar la cabezera de la tabla
 		table.setDefaultRenderer(Object.class, new Formato());		//Indica el formato de las celdas
 		table.setRowHeight(22);										//Tamaño del renglon
 	}
 	
-	public static void main(String[] args) {
-		new Ventana();
-	}
-
-	class Oyente implements ActionListener{
+	class ActListener implements ActionListener{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Object obj = e.getSource();
-			if( obj == mnitNuevo || obj == btnNuevo ){
-				int lim = 15;
-				if( workSpace.getTabCount() < lim){
-					workSpace.addTab("Nuevo", new WorkSpace(Ventana.this));		//Crea una nueva ventaña con un nuevo area de trabajo
+			if( obj == mnitNew || obj == btnNew ){
+				int limit = 15;
+				if( workSpace.getTabCount() < limit){
+					workSpace.addTab("New", new WorkSpace(Ventana.this));		//Crea una nueva ventaña con un nuevo area de trabajo
 					workSpace.setSelectedIndex(workSpace.getTabCount()-1);		//Posiciona sobre la nueva pestaña
 				}else
-					JOptionPane.showMessageDialog(Ventana.this, "No es posible tener mas de "+lim+" pestañas abiertas");
+					JOptionPane.showMessageDialog(Ventana.this, "No puedes tener mas de "+limit+" pestañas abiertas");
 				
-			}else if( obj == mnitGuardar || obj == btnGuardar ){
+			}else if( obj == mnitSave || obj == btnSave ){
 				WorkSpace ks = (WorkSpace) workSpace.getComponentAt(workSpace.getSelectedIndex());	//Determina el area de trabajo segun la pestaña actual
 				txtTrabajo = ks.getTxtTrabajo();		//
-				ach = ks.getArchivo();
+				archivo = ks.getArchivo();
 				try {
-					ach.SaveFile(txtTrabajo,Ventana.this);	//Metodo que Guarda Archivo
+					archivo.SaveFile(txtTrabajo,Ventana.this);	//Metodo que Guarda Archivo
 				} catch (IOException e1) {
 						e1.printStackTrace();
 				}
-			}else if( obj == mnitAbrir ){
+			}else if( obj == mnitOpen ){
 				int i = workSpace.getSelectedIndex();
 				WorkSpace ks = (WorkSpace) workSpace.getComponentAt(i);
-				ach = ks.getArchivo();
-				String texto = ach.OpenFile(Ventana.this), //Metodo que abre el Arhivo
-						n = ach.nombreArch,
-						dato = ach.txt;
+				archivo = ks.getArchivo();
+				String texto = archivo.OpenFile(Ventana.this), //Metodo que abre el Arhivo
+						n = archivo.nombreArch/*,
+						dato = ach.txt*/;
 				//JOptionPane.showMessageDialog(null, dato);
 				boolean p1 = !texto.equals("");		//Verifica si se abrio algun archivo
 				if( p1 ){
@@ -353,57 +359,73 @@ public class Ventana extends JFrame{
 					txtTrabajo = ks.getTxtTrabajo();
 					txtTrabajo.setText(texto);	//Escribe el texto del Arhivo
 				}
-			}else if( obj == mnitEjecutar || obj == btnEjecutar ){
-				int d = workSpace.getSelectedIndex();						//indice de la pestaña actual
+			}else if( obj == mnitRun || obj == btnRun ){
+				int d = workSpace.getSelectedIndex(),
+						console_idx = tpConsole.getSelectedIndex();						//indice de la pestaña actual
+				if( TS.isVisible())
+					TS.dispose();
 				WorkSpace ks = (WorkSpace) workSpace.getComponentAt(d);		//Determina el area de trabajo segun la pestaña actual
 				txtTrabajo = ks.getTxtTrabajo();							//...
 				if(!txtTrabajo.getText().equals("")){
-					String cs = bot.compilacion(txtTrabajo.getText());				//Obtiene una cadema con los errores lexicos en caso de haber alguno
-					txtLog.setText(Parser2.salida2);
-					creaTabla(bot.retArr());									//llena la tabla de simbolos pequeña
+					bot.setView(txtCuadruple);
+					String cs = bot.compilation(txtTrabajo.getText());				//Obtiene una cadema con los errores lexicos en caso de haber alguno
+					txtLog.setText(Parser2.output2);
+					createTable(bot.retArr());									//llena la tabla de simbolos pequeña
 					jstb.setViewportView(table);
-					txtConsola.setText(cs);										//muestra los errores en caso de haber alguno
+					txtConsole.setText(cs);										//muestra los errores en caso de haber alguno
 					TSE.actCat(bot.retArr());									//llena la tabla de simbolos extendida
-					TS.actCat(bot.retArrS());
+					TS.actCat(bot.retArrS());	
+					if( bot.show ){
+						if( !bot.retMessage().equals("") ){
+							if( console_idx != 1)
+								tpConsole.setTitleAt(1, "*Cuadruple");
+							txtCuadruple.setText(bot.retMessage());
+						}
+					}
 				}else
-					JOptionPane.showMessageDialog(null, "No hay texto para analizar");
-			}else if( obj == mnitTabTok){
+					JOptionPane.showMessageDialog(null, "No hay texto por analizar");
+			}else if( obj == mnitTokTab){
 				TSE.isVisible(true);				//hace visible la tabla de simbolos extendida
 				TSE.actCat(bot.retArr());			//llena la tabla de simbolos extendida
-			}else if( obj == mnitTabSimb){
-				TS.isVisible(true);
-				TS.actCat(bot.retArrS());
-			}else if( obj == mnitAcerca){
+			}else if( obj == mnitSymbTab){
+				if( bot.show ){
+					TS.actCat(bot.retArrS());
+					TS.isVisible(true);
+				}else if( txtTrabajo.getText().equals(""))
+					JOptionPane.showMessageDialog(Ventana.this, "Nada por compilar... aún");	
+				else
+					JOptionPane.showMessageDialog(Ventana.this, "No se puede mostrar hasta que se detectan 0 errores \\ ni se ha compilado algo");				
+			}else if( obj == mnitAbout){
 				FAD.setVisible(true);		//hace visible la ventana Acerca de
-			}else if( obj == mnitCopiar || obj == mnitpCopiar ){
+			}else if( obj == mnitCopy || obj == mnitpCopy ){
 				WorkSpace ks = (WorkSpace) workSpace.getComponentAt(workSpace.getSelectedIndex());		//Determina el area de trabajo segun la pestaña actual
 				txtTrabajo = ks.getTxtTrabajo();							//...
 				txtTrabajo.copy();
-			}else if( obj == mnitPegar || obj == mnitpPegar ){
+			}else if( obj == mnitPaste || obj == mnitpPaste ){
 				WorkSpace ks = (WorkSpace) workSpace.getComponentAt(workSpace.getSelectedIndex());		//Determina el area de trabajo segun la pestaña actual
 				txtTrabajo = ks.getTxtTrabajo();							//...
 				txtTrabajo.paste();
-			}else if( obj == mnitCortar || obj == mnitpCortar){
+			}else if( obj == mnitCut || obj == mnitpCut){
 				WorkSpace ks = (WorkSpace) workSpace.getComponentAt(workSpace.getSelectedIndex());		//Determina el area de trabajo segun la pestaña actual
 				txtTrabajo = ks.getTxtTrabajo();							//...
 				txtTrabajo.cut();
-			}else if( obj == mnitCerrar){
+			}else if( obj == mnitClose){
 				int d = workSpace.getSelectedIndex();						//indice de la pestaña actual
 				WorkSpace ks = (WorkSpace) workSpace.getComponentAt(d);		//Determina el area de trabajo segun la pestaña actual
 				txtTrabajo = ks.getTxtTrabajo();							//...
-				ach = ks.getArchivo();
-				String dato = ach.txt,dato2 = txtTrabajo.getText();
+				archivo = ks.getArchivo();
+				String data = archivo.txt,data2 = txtTrabajo.getText();
 				//JOptionPane.showMessageDialog(null, dato+"\n"+dato2);
-				if( !dato.equals(dato2)){
+				if( !data.equals(data2)){
 					//JOptionPane.showMessageDialog(null, "cerrado manual");
 					Object[] opciones = { "Si","No","Cancelar"};
 					
-					int n = JOptionPane.showOptionDialog(Ventana.this, "¿Desea guardar los cambios?"
-								, "Ward", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE
+					int n = JOptionPane.showOptionDialog(Ventana.this, "¿Quieres guardar los cambios?"
+								, "VAJA", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE
 								, null, opciones, opciones[0]);
 						if( n == JOptionPane.YES_OPTION){
 							try {
-								ach.SaveFile(txtTrabajo, Ventana.this);	//Metodo que Guarda el Archivo
+								archivo.SaveFile(txtTrabajo, Ventana.this);	//Metodo que Guarda el Archivo
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
@@ -422,6 +444,15 @@ public class Ventana extends JFrame{
 				//					//quita la pestaña actual
 			}else{
 				System.exit(0);		//Sale de la aplicacion
+			}
+		}
+	}
+	class OyeTab implements ChangeListener{
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			if( tpConsole.getTitleAt(tpConsole.getSelectedIndex()).contains("*C")){
+				tpConsole.setTitleAt(tpConsole.getSelectedIndex(), "Cuadruple");
 			}
 		}
 	}

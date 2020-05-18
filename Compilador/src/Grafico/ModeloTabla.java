@@ -52,9 +52,9 @@ public class ModeloTabla extends AbstractTableModel{
 			else
 				val = "";
 			break;
-		case 2: val = cl.getColumna();
+		case 2: val = cl.getColumn();
 			break;
-		case 3: val = cl.getFila();
+		case 3: val = cl.getLine();
 			break;
 		}
 		return val;

@@ -17,15 +17,15 @@ import main.Identificador;
 public class TablaSimbolosEx2 extends JDialog{
 	
 	private static final long serialVersionUID = 1L;
-	private JTable tabla;
+	private JTable table;
 	private JScrollPane jsp;
 	private ArrayList<Identificador> id;
 	private ModeloTabla2 mo;
 	private boolean visible = false;
-	private Oyente O = new Oyente(); 
+	private Listener O = new Listener(); 
 	
 	public TablaSimbolosEx2( JFrame fr, ArrayList<Identificador> dis){
-		setTitle("Tabla de Simbolos");
+		setTitle("Symbol Token");
 		id = dis;
 		setSize(650, 500);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -35,8 +35,8 @@ public class TablaSimbolosEx2 extends JDialog{
 	}
 	
 	private void init(){
-		tablilla();
-		jsp = new JScrollPane( tabla );
+		createTable();
+		jsp = new JScrollPane( table );
 		getContentPane().add(jsp);
 		
 		try{
@@ -50,23 +50,23 @@ public class TablaSimbolosEx2 extends JDialog{
 	public void isVisible(boolean r){
 		visible = true;
 	}
-	private void tablilla(){
+	private void createTable(){
 		mo = new ModeloTabla2(id);
-		tabla = new JTable( mo );
-		tabla.getTableHeader().setResizingAllowed(false);
-		tabla.getTableHeader().setReorderingAllowed(false);
+		table = new JTable( mo );
+		table.getTableHeader().setResizingAllowed(false);
+		table.getTableHeader().setReorderingAllowed(false);
 		//tabla.getColumnModel().getColumn(2).setPreferredWidth(10);
-		tabla.setFillsViewportHeight(true);
-		tabla.setRowHeight(22);
-		tabla.setDefaultRenderer(Object.class, new Formato());
+		table.setFillsViewportHeight(true);
+		table.setRowHeight(22);
+		table.setDefaultRenderer(Object.class, new Formato());
 	}
 	public void actCat( ArrayList<Identificador> cd ){
 		id = cd;
-		tablilla();
-		jsp.setViewportView(tabla);
+		createTable();
+		jsp.setViewportView(table);
 		this.setVisible(visible);
 	}
-	private class Oyente extends WindowAdapter{
+	private class Listener extends WindowAdapter{
 
 		@Override
 		public void windowClosed(WindowEvent e) { visible = false; }

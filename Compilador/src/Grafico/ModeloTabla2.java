@@ -2,16 +2,18 @@ package Grafico;
 
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
+
 import main.Identificador;
+import main.Token;
 
 public class ModeloTabla2 extends AbstractTableModel{
 
 	private static final long serialVersionUID = 1L;
-	private String[] titulo ={"Identificador","Tipo","Valor","Fila"};
+	private String[] titulo ={"Nombre","Tipo","Valor","Posicion","Alcance"};
 	private ArrayList<Identificador> ide;
 
 	public ModeloTabla2(ArrayList<Identificador> id){
-		ide = id; 
+		ide = id;
 	}
 	
 	@Override
@@ -21,7 +23,10 @@ public class ModeloTabla2 extends AbstractTableModel{
 
 	@Override
 	public int getRowCount() {
+		if( ide != null)
 			return ide.size();
+		else
+			return 0;
 	}
 
 	@Override
@@ -36,6 +41,15 @@ public class ModeloTabla2 extends AbstractTableModel{
 		case 1: val = id.getTipo();  break;
 		case 2: val = id.getValor(); break;
 		case 3: val = id.getFila(); break;
+		case 4: val = id.getAlcance(); break;
+		/*case 5: 
+			try {
+				val = id.getExp().size();
+			} catch (Exception e) {
+				// TODO: handle exception
+				val = "-";
+			}
+			 break;*/
 		}
 		return val;
 	}
