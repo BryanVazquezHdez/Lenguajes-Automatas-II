@@ -63,83 +63,83 @@ public class Parser2 {
 		case Token.PR:
 			switch (to) {
 			case "class":
-				output +="\tSintactical Error, Line: "+tk.getLine()+" \"class\" expected\n";
+				output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba: \"class\"";
 				break;
 			case "if":
-				output +="\tSintactical Error, Line: "+tk.getLine()+" \"if\" expected\n";
+				output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba: \"if\"";
 				break;
 			case "while":
-				output +="\tSintactical Error, Line: "+tk.getLine()+" \"while\" expected\n";
+				output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba: \"while\"";
 				break;
 			case "void":
-				output +="\tSintactical Error, Line: "+tk.getLine()+" \"void\" expected\n";
+				output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba: \"void\"";
 				break;
 			case "static":
-				output +="\tSintactical Error, Line: "+tk.getLine()+" \"static\" expected\n";
+				output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba: \"static\"";
 				break;
 			}
 			break;
 		case Token.SE:
 			switch (to) {
 			case "{":
-				output +="\tSintactical Error, Line: "+tk.getLine()+"\""+to+"\"expected\n";	
+				output +="Error Sintactico, linea: "+tk.getLine()+"\""+to+"\" esperado\n";	
 				break;
 			case "}":
-				output +="\tSintactical Error, Line: "+tk.getLine()+" \""+to+"\" expected\n";	
+				output +="Error Sintactico, linea: "+tk.getLine()+" \""+to+"\" esperado\n";	
 				break;
 			case "(":
-				output +="\tSintactical Error, Line: "+tk.getLine()+" \""+to+"\" expected\n";	
+				output +="Error Sintactico, linea: "+tk.getLine()+" \""+to+"\" esperado\n";	
 				break;
 			case ")":
-				output +="\tSintactical Error, Line: "+tk.getLine()+" \""+to+"\" expected\n";	
+				output +="Error Sintactico, linea: "+tk.getLine()+" \""+to+"\" esperado\n";	
 				break;
 			case ";":
-				output +="\tSintactical Error, Line: "+tk.getLine()+" \""+to+"\" expected\n";	
+				output +="Error Sintactico, linea: "+tk.getLine()+" \""+to+"\" esperado\n";	
 				break;
 			default:
-				output +="\tSintactical Error, Line: "+tk.getLine()+" Espacial Symbol expected\n";
+				output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba un Simbolo Especial\n";
 				break;
 			}
 			break;
 		case Token.LOP:
 			//if(to.equals("arit"))
-				output +="\tSintactical Error, Line: "+tk.getLine()+" Logical operator expected\n";
+				output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba un operador lógico\n";
 			break;
 		case Token.AOP:
-			output +="\tSintactical Error, Line: "+tk.getLine()+" token \""+tk.getToken()+"\" isn't Arimetic operator \n";
+			output +="Error Sintactico, linea: "+tk.getLine()+" token \""+tk.getToken()+"\" no es un operador artimético \n";
 			break;
 		case Token.Type:
-			output +="\tSintactical Error, Line: "+tk.getLine()+" \"int\" or \"boolean\" expected\n";
+			output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba un \"int\" o \"boolean\"";
 			break;
 		case Token.MOD:
-			output +="\tSintactical Error, Line: "+tk.getLine()+" \"public\" or \"private\" expected\n";
+			output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba un \"public\" or \"private\"";
 			break;
 		case Token.DIG:
-			output +="\tSintactical Error, Line: "+tk.getLine()+" Digit expected\n";
+			output +="Error Sintactico, linea: "+tk.getLine()+"se esperaba un Digito";
 			break;
 		case Token.VAL:
-			output +="\tSintactical Error, Line: "+tk.getLine()+" \"true\" or \"false\" expected\n";
+			output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba un \"true\" o \"false\"";
 			break;
 		case Token.ID:
 				if((to.length() == 0 || to.length() != 0) && !tk.getToken().equals(to))
-					output +="\tSintactical Error, Line: "+tk.getLine()+" identifier \""+to+"\" expected\n";
+					output +="Error Sintactico, linea: "+tk.getLine()+" identificador \""+to+"\" se esperaba\n";
 				else
-					output +="\tSintactical Error, Line: "+tk.getLine()+" identifier expected\n";
+					output +="Error Sintactico, linea: "+tk.getLine()+" se esperaba un identificador";
 			break;
 		case Token.ID_DIG:
-			output +="\tSintactical Error, Line: "+tk.getLine()+" token \""+tk.getToken()+"\" isn't identifier or Digit\n";
+			output +="Error Sintactico, linea: "+tk.getLine()+" token \""+tk.getToken()+"\" no es un identificador o dígito";
 			break;
 		case noValue:
-			output +="\tSintactical Error, Line: "+tk.getLine()+" Digit, Boolean or String expected\n";
+			output +="Error Sintactico, linea: "+tk.getLine()+" se esperba un Digiti, Boolean o String";
 			break;
 		case exceso:
-			output += "\tSintactical Error, Line: "+tk.getLine()+" \""+tk.getToken()+"\" Grammar doesn't supported it\n";
+			output +="Error Sintactico, linea: "+tk.getLine()+" \""+tk.getToken()+"\" la gramática no es compatible\n";
 			break;
 		default:
-			output += "\tSintactical Error, Line: "+tk.getLine()+" "+to+"\n";
+			output +="Error Sintactico, linea: "+tk.getLine()+" "+to+"\n";
 			break;
 		}
-		output2 += "Acquired Token: "+tk.getToken()+"\n"+"Espected Token: "+to+"\n-------------------------------------------\n";
+		output2 += "Token adquirido: "+tk.getToken()+"\n"+" Token esperado: "+to+"\n-------------------------------------------\n";
 		
 	}
 	
